@@ -10,8 +10,8 @@ load_dotenv(dotenv_path="./.env")
 # Read the YouTube Data API key from environment variables
 API_KEY = os.getenv("API_KEY")
 
-# The YouTube channel handle you want to query (e.g., https://youtube.com/@MrBeast)
-CHANNEL_HANDLE = "MrBeast"
+# Read the YouTube channel handle you want to query (e.g., https://youtube.com/@MrBeast)
+CHANNEL_HANDLE = os.getenv("CHANNEL_HANDLE")
 
 # Max items per page/batch for YouTube Data API calls (most endpoints cap at 50)
 maxResults = 50
