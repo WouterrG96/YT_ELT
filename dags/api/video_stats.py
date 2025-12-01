@@ -1,22 +1,25 @@
 import requests
 import json
-import os
-from dotenv import load_dotenv
+# import os
+# from dotenv import load_dotenv
 from datetime import date
 
-# Load environment variables from a local .env file (so you don't hardcode secrets)
-load_dotenv(dotenv_path="./.env")
+from airflow.decorators import task
+from airflow.models import Variable
+
+# # Load environment variables from a local .env file (so you don't hardcode secrets)
+# load_dotenv(dotenv_path="./.env")
 
 # Read the YouTube Data API key from environment variables
-API_KEY = os.getenv("API_KEY")
+API_KEY = Variable.get("API_KEY")
 
 # Read the YouTube channel handle you want to query (e.g., https://youtube.com/@MrBeast)
-CHANNEL_HANDLE = os.getenv("CHANNEL_HANDLE")
+CHANNEL_HANDLE = Variable.get("CHANNEL_HANDLE")
 
 # Max items per page/batch for YouTube Data API calls (most endpoints cap at 50)
 maxResults = 50
 
-
+@task
 def get_playlist_id():
     """
     Fetch the channel's 'uploads' playlist ID.
@@ -51,7 +54,7 @@ def get_playlist_id():
     except requests.exceptions.RequestException as e:
         raise e
 
-
+@task
 def get_video_ids(playlistId):
     """
     Given an uploads playlist ID, fetch all video IDs from that playlist,
@@ -100,7 +103,7 @@ def get_video_ids(playlistId):
     except requests.exceptions.RequestException as e:
         raise e
 
-
+@task
 def extract_video_data(video_ids):
     """
     Given a list of video IDs, call the Videos endpoint in batches to fetch:
@@ -162,7 +165,7 @@ def extract_video_data(video_ids):
     except requests.exceptions.RequestException as e:
         raise e
     
-
+@task
 def save_to_json(extracted_data):
     """Save extracted data to a date-stamped JSON file in ./data/.
 
