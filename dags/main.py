@@ -8,7 +8,7 @@ local_tz = pendulum.timezone("Europe/Amsterdam")
 
 # Default Args
 default_args = {
-    "owner": "dataengineers",
+    "owner": "wouterrg96",
     "depends_on_past": False,
     "email_on_failure": False,
     "email_on_retry": False,
