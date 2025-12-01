@@ -45,9 +45,6 @@ def get_playlist_id():
         # Extract the playlist ID for uploads from relatedPlaylists
         channel_playlistID = channel_items["contentDetails"]["relatedPlaylists"]["uploads"]
 
-        # Print the uploads playlist ID (debug/log)
-        print(channel_playlistID)
-
         return channel_playlistID
 
     # Catch network errors, invalid responses, timeouts, etc.
@@ -167,8 +164,20 @@ def extract_video_data(video_ids):
     
 
 def save_to_json(extracted_data):
+    """Save extracted data to a date-stamped JSON file in ./data/.
+
+    The filename includes today's date (e.g., YT_data_2025-12-01.json).
+    The JSON is pretty-printed (indentation) and written as UTF-8 while
+    preserving non-ASCII characters.
+    """
+    # Build an output path with today's date so each run creates a new file.
     file_path = f"./data/YT_data_{date.today()}.json"
+
+    # Open (or create) the file in write mode using UTF-8 encoding.
     with open(file_path, "w", encoding="utf-8") as json_outfile:
+        # Serialize Python data structures to JSON:
+        # - indent=4 makes it human-readable
+        # - ensure_ascii=False keeps unicode characters intact (e.g., emoji, accents)
         json.dump(extracted_data, json_outfile, indent=4, ensure_ascii=False)
 
 
