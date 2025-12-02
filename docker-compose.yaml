@@ -42,7 +42,7 @@
 #                                as described in https://airflow.apache.org/docs/docker-stack/build.html.
 #                                Default: ''
 #
-# Feel free to modify this file to suit your needs.
+# Feel free to modify this file to suit your needs
 ---
 x-airflow-common: &airflow-common
   # Use custom image that builds on top of default airflow image (currently; Default: apache/airflow:2.9.2)
