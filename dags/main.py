@@ -18,11 +18,11 @@ local_tz = pendulum.timezone("Europe/Malta")
 
 # Default Args
 default_args = {
-    "owner": "dataengineers",
+    "owner": "wouterrg96",
     "depends_on_past": False,
     "email_on_failure": False,
     "email_on_retry": False,
-    "email": "data@engineers.com",
+    "email": "data@engineers.net",
     # 'retries': 1,
     # 'retry_delay': timedelta(minutes=5),
     "max_active_runs": 1,
