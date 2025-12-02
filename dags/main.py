@@ -76,7 +76,7 @@ with DAG(
     default_args=default_args,
     description="DAG to process JSON file and insert data into both staging and core schemas",
     catchup=False,
-    # No schedule => this DAG is triggered manually or by another DAG/operator
+    # No schedule => this DAG is triggered manually or by another DAG operator
     schedule=None,
 ) as dag_update:
 
