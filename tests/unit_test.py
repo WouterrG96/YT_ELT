@@ -1,11 +1,11 @@
 def test_api_key(api_key):
     # Assert the API key fixture returns the expected mock value
-    assert api_key == "MOCK_KEY1234"
+    assert api_key == "FAKE_KEY1234"
 
 
 def test_channel_handle(channel_handle):
     # Assert the channel handle fixture returns the expected mock value
-    assert channel_handle == "MRCHEESE"
+    assert channel_handle == "FAKENAME"
 
 
 def test_postgres_conn(mock_postgres_conn_vars):
