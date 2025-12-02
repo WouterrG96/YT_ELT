@@ -1,0 +1,28 @@
+# Data quality checks for the `yt_api` dataset/table.
+# Goal: ensure identifiers are present/unique and engagement metrics are plausible.
+
+checks for yt_api:
+  # Video_ID must always be present.
+  - missing_count("Video_ID") = 0
+
+  # Video_ID must be unique (no duplicates).
+  - duplicate_count("Video_ID") = 0
+
+  # Sanity check: likes should not exceed views.
+  # (If this ever triggers, it likely indicates an ingestion/join/type issue.)
+  - likes_count_greater_than_vid_views = 0:
+      name: Check for Likes_Count greater than Video_Views
+      # IMPORTANT: the key must be "<metric_name> query" (not just "query").
+      likes_count_greater_than_vid_views query: |
+        SELECT COUNT(*) AS likes_count_greater_than_vid_views
+        FROM ${SCHEMA}.yt_api
+        WHERE "Likes_Count" > "Video_Views"
+
+  # Sanity check: comments should not exceed views.
+  - comments_count_greater_than_vid_views = 0:
+      name: Check for Comments_Count greater than Video_Views
+      # IMPORTANT: the key must be "<metric_name> query" (not just "query").
+      comments_count_greater_than_vid_views query: |
+        SELECT COUNT(*) AS comments_count_greater_than_vid_views
+        FROM ${SCHEMA}.yt_api
+        WHERE "Comments_Count" > "Video_Views"
