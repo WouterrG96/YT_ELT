@@ -5,11 +5,11 @@ from unittest import mock
 from airflow.models import Variable, Connection, DagBag
 
 
-# @pytest.fixture
-# def api_key():
-#     # Mock Airflow Variable via env var (AIRFLOW_VAR_<NAME>) and return its value
-#     with mock.patch.dict("os.environ", AIRFLOW_VAR_API_KEY="FAKE_KEY1234"):
-#         yield Variable.get("API_KEY")
+@pytest.fixture
+def api_key():
+    # Mock Airflow Variable via env var (AIRFLOW_VAR_<NAME>) and return its value
+    with mock.patch.dict("os.environ", AIRFLOW_VAR_API_KEY="FAKE_KEY1234"):
+        yield Variable.get("API_KEY")
 
 
 @pytest.fixture
