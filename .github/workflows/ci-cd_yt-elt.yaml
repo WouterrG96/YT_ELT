@@ -27,8 +27,8 @@ jobs:
         uses: tj-actions/changed-files@v45
         with:
           files: |
-            Dockerfile          # changing this affects the Docker image build
-            requirements.txt    # changing deps affects the Docker image build
+            Dockerfile
+            requirements.txt
 
       # Docker Buildx enables modern builds (multi-platform, caching, and buildx build --push)
       - name: Set up Docker Buildx
@@ -49,11 +49,6 @@ jobs:
       - name: Build and push Docker image
         if: steps.changed-files-build.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          # Build the image in the current folder (.)
-          # --push uploads it to DockerHub
-          # We tag it twice:
-          #   1) :latest      -> convenient "most recent" tag
-          #   2) :<git sha>   -> exact version for debugging/rollback
           docker buildx build --push \
             --tag ${{ vars.DOCKERHUB_NAMESPACE }}/${{ vars.DOCKERHUB_REPOSITORY }}:latest \
             --tag ${{ vars.DOCKERHUB_NAMESPACE }}/${{ vars.DOCKERHUB_REPOSITORY }}:${{ github.sha }} \
@@ -119,9 +114,9 @@ jobs:
         uses: tj-actions/changed-files@v45
         with:
           files: |
-            dags/**              # DAG python files
-            include/**           # Soda configs/checks or other included assets
-            docker-compose.yaml  # the container stack definition
+            dags/**
+            include/**
+            docker-compose.yaml
 
       # Bring up your whole local stack (Airflow + Postgres + whatever is in compose)
       - name: Set up Docker Compose
@@ -134,8 +129,6 @@ jobs:
       - name: Run Unit and Integration Tests
         if: steps.changed-files-tests.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          # docker exec runs a command inside an already-running container
-          # -t allocates a pseudo-TTY so output formatting is nicer
           docker exec -t airflow-worker sh -c "pytest tests/ -v"
 
       # End-to-end tests: Airflow's built-in "dags test" runs a DAG locally for a single execution date
@@ -143,11 +136,7 @@ jobs:
       - name: Run End-to-End DAG Tests
         if: steps.changed-files-tests.outputs.any_changed == 'true' || github.event_name == 'workflow_dispatch'
         run: |
-          # List the DAGs we want to validate end-to-end
           DAG_NAMES=("produce_json" "update_db" "data_quality")
-
-          # Run each DAG test inside the Airflow worker
-          # airflow dags test <dag_id> executes the tasks in-process for a test run
           for DAG in "${DAG_NAMES[@]}"; do
             docker exec -t airflow-worker sh -c "airflow dags test $DAG"
           done
