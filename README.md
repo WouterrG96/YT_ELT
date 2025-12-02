@@ -6,8 +6,6 @@ An end-to-end **ELT** project that pulls video-level metrics from the **YouTube 
 
 ---
 
-## Architecture
-
 ## Architecture (how the pieces fit together)
 
 - **Airflow (in Docker)** schedules and runs the pipeline on a defined cadence (or manually from the UI).
@@ -46,3 +44,129 @@ An end-to-end **ELT** project that pulls video-level metrics from the **YouTube 
 ├── docker-compose.yaml   # Multi-container stack (Airflow + Postgres, etc.)
 ├── dockerfile            # Custom Airflow image (installs deps from requirements.txt)
 └── requirements.txt      # Python dependencies for DAGs/tests/soda
+```
+
+---
+
+## Data Source
+
+The pipeline extracts data from the **YouTube Data API**. By default, it pulls from the popular channel **MrBeast**.
+
+You can replicate this project for *any* YouTube channel by updating the **Channel ID** or **handle** used by the extraction step.
+
+---
+
+## What This Pipeline Does
+
+This project uses **Airflow** for orchestration and runs fully containerized via **Docker Compose**.
+
+### ELT flow
+
+1. **Extract**: Python scripts call the YouTube API and generate raw output.
+2. **Load (staging)**: Raw data is loaded into a `staging` schema in a **dockerized PostgreSQL** database.
+3. **Transform + Load (core)**: A Python transformation step applies minor cleaning/reshaping and loads results into the `core` schema (same dockerized Postgres instance).
+
+### Full load vs incremental updates
+
+- The **first run** performs an initial **full load**.
+- Subsequent runs **upsert** selected fields/columns (incremental refresh).
+
+Once the `core` layer is populated and tests are passing, the data is ready for analysis or downstream use.
+
+---
+
+## Extracted Fields
+
+The pipeline collects the following **7 attributes per video**:
+
+- Video ID
+- Video Title
+- Upload Date
+- Duration
+- Video Views
+- Likes Count
+- Comments Count
+
+---
+
+## Tech Stack
+
+- **Containerization**: Docker, Docker Compose  
+- **Orchestration**: Apache Airflow  
+- **Storage**: PostgreSQL  
+- **Languages**: Python, SQL  
+- **Testing**: pytest (unit), Soda Core (data quality)  
+- **CI/CD**: GitHub Actions  
+
+---
+
+## Containerization Details (Airflow on Docker)
+
+Airflow is deployed using the official `docker-compose.yaml` from the Airflow docs, with a few project-specific adjustments:
+
+1. **Custom Airflow image**
+   - The stack uses an *extended* Airflow image built via a `Dockerfile`.
+   - That image is pushed/pulled to/from Docker Hub via a GitHub Actions CI/CD workflow.
+   - The CI workflow also runs `docker-compose` to validate the stack.
+
+2. **Airflow Connections & Variables via environment variables**
+   - Connections use URI format with this naming convention:
+     - `AIRFLOW_CONN_{CONN_ID}`
+   - Variables are injected as:
+     - `AIRFLOW_VAR_{VARIABLE_NAME}`
+
+3. **Fernet key encryption**
+   - A Fernet key is used to encrypt sensitive values stored in connections/variables.
+
+---
+
+## Orchestration (Airflow DAGs)
+
+There are **three DAGs**, executed sequentially. You can view and trigger them in the Airflow UI:
+
+- Airflow UI: `http://localhost:8080`
+
+### DAG list
+
+- **produce_json**  
+  Produces a JSON file containing raw YouTube API data.
+
+- **update_db**  
+  Processes the JSON and loads data into both `staging` and `core` schemas.
+
+- **data_quality**  
+  Runs data quality checks against both layers in the database.
+
+---
+
+## Data Storage / Access
+
+To explore the loaded YouTube data you can:
+
+- Exec into the Postgres container and use `psql`, or
+- Connect with a database client like **DBeaver** and run SQL queries directly.
+
+---
+
+## Testing
+
+This project includes two layers of testing:
+
+- **Unit tests** with `pytest`
+- **Data quality checks** with **Soda Core**
+
+These help ensure both the logic (code) and the output data remain correct as the pipeline evolves.
+
+---
+
+## CI/CD (GitHub Actions)
+
+CI/CD is included so changes to Airflow code, Python dependencies, Docker images, or DAG logic can be validated automatically.
+
+Typical CI tasks include:
+
+- Building the custom Airflow Docker image
+- Running the Docker Compose stack
+- Ensuring the DAGs and tests still execute as expected
+
+---
