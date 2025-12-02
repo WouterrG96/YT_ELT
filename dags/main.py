@@ -40,8 +40,7 @@ with DAG(
     dag_id='produce_json',
     default_args=default_args,
     description='DAG to produce JSON file with raw data',
-    # Cron schedule: run daily at 14:00 (2pm) in the DAG's timezone context
-    schedule='0 14 * * *',
+    schedule=None,
     # Don't backfill historical runs between start_date and today
     catchup=False
 ) as dag:
