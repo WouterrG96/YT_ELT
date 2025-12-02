@@ -59,6 +59,12 @@ with DAG(
     # Task 4: Persist extracted raw data to a JSON file (landing layer)
     save_to_json_task = save_to_json(extract_data)
 
+    # Task 5: Trigger the update db DAG after data has been extracted
+    trigger_update_db = TriggerDagRunOperator(
+        task_id="trigger_update_db",
+        trigger_dag_id="update_db",
+    )
+
     # --- Define dependencies (execution order) ---
     # Ensures extraction happens step-by-step, and JSON is written last
     playlist_id >> video_ids >> extract_data >> save_to_json_task
