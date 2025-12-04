@@ -66,7 +66,7 @@ with DAG(
 
     # --- Define dependencies (execution order) ---
     # Ensures extraction happens step-by-step, and JSON is written last
-    playlist_id >> video_ids >> extract_data >> save_to_json_task
+    playlist_id >> video_ids >> extract_data >> save_to_json_task >> trigger_update_db
 
 
 # DAG 2: update_db
